@@ -1,7 +1,6 @@
 using Linkly.Abstractions;
 using Linkly.Clients;
 using Linkly.Configuration;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -10,14 +9,14 @@ namespace Linkly.DependencyInjection;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers Linkly API clients. Reads configuration from the "Linkly" section,
+    /// Registers Linkly API clients. Binds options from the "Linkly" configuration section,
     /// which can be populated via user secrets:
     ///   dotnet user-secrets set "Linkly:ApiKey" "your-api-key"
     ///   dotnet user-secrets set "Linkly:WorkspaceId" "12345"
     /// </summary>
-    public static IServiceCollection AddLinkly(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddLinkly(this IServiceCollection services)
     {
-        services.Configure<LinklyOptions>(configuration.GetSection(LinklyOptions.SectionName));
+        services.AddOptions<LinklyOptions>().BindConfiguration(LinklyOptions.SectionName);
         return services.RegisterHttpClients();
     }
 
