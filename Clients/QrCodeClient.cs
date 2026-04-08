@@ -43,15 +43,54 @@ internal sealed class QrCodeClient : IQrCodeClient
             $"workspace_id={opts.WorkspaceId}"
         };
 
-        if (request.ForegroundColor is not null)
-            query.Add($"foreground_color={Uri.EscapeDataString(request.ForegroundColor)}");
-
-        if (request.BackgroundColor is not null)
-            query.Add($"background_color={Uri.EscapeDataString(request.BackgroundColor)}");
-
         if (request.Size is not null)
             query.Add($"size={request.Size}");
 
+        // Hex colours must be URL-encoded: # → %23
+        if (request.ForegroundColor is not null)
+            query.Add($"fgColor={EncodeColor(request.ForegroundColor)}");
+
+        if (request.BackgroundColor is not null)
+            query.Add($"bgColor={EncodeColor(request.BackgroundColor)}");
+
+        if (request.QrStyle is not null)
+            query.Add($"qrStyle={request.QrStyle.Value.ToString().ToLowerInvariant()}");
+
+        if (request.EyeStyle is not null)
+            query.Add($"eyeStyle={request.EyeStyle.Value.ToString().ToLowerInvariant()}");
+
+        if (request.EyeColorInner is not null)
+            query.Add($"eyeColorInner={EncodeColor(request.EyeColorInner)}");
+
+        if (request.EyeColorOuter is not null)
+            query.Add($"eyeColorOuter={EncodeColor(request.EyeColorOuter)}");
+
+        if (request.LogoImage is not null)
+            query.Add($"logoImage={Uri.EscapeDataString(request.LogoImage)}");
+
+        if (request.LogoWidth is not null)
+            query.Add($"logoWidth={request.LogoWidth}");
+
+        if (request.LogoHeight is not null)
+            query.Add($"logoHeight={request.LogoHeight}");
+
+        if (request.LogoPadding is not null)
+            query.Add($"logoPadding={request.LogoPadding}");
+
+        if (request.LogoStyle is not null)
+            query.Add($"logoStyle={request.LogoStyle.Value.ToString().ToLowerInvariant()}");
+
+        if (request.QuietZone is not null)
+            query.Add($"quietZone={request.QuietZone}");
+
         return $"link/{request.LinkId}/qr/png?{string.Join("&", query)}";
+    }
+
+    // The API expects hex colours URL-encoded with %23 instead of #.
+    // Accepts "#ff0000" or "ff0000" — always ensures the hash is encoded.
+    private static string EncodeColor(string hex)
+    {
+        var normalised = hex.StartsWith('#') ? hex : "#" + hex;
+        return Uri.EscapeDataString(normalised);
     }
 }
