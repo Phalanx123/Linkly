@@ -1,0 +1,40 @@
+﻿# Build results
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Resharper / Rider
+_ReSharper*/
+*.DotSettings.user
+
+# Publish output
+publish/
+*.Publish.xml
+
+# Environment variables
+*.env
+
+# Coverage reports
+*.coverage
+*.coveragexml
+TestResult*/
