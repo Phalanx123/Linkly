@@ -57,8 +57,9 @@ internal sealed class LinkShorteningClient : ILinkShorteningClient
                 response.StatusCode);
         }
 
-        return await response.Content.ReadFromJsonAsync<CreateLinkResponse>(cancellationToken: cancellationToken)
+        var linkResponse = await response.Content.ReadFromJsonAsync<CreateLinkResponse>(cancellationToken: cancellationToken)
                ?? throw new LinklyApiException("Received empty response from Linkly API.", response.StatusCode);
+        return linkResponse;
     }
 
     private sealed class LinkRequestBody
