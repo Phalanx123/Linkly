@@ -46,6 +46,10 @@ public static class ServiceCollectionExtensions
     {
         var opts = sp.GetRequiredService<IOptions<LinklyOptions>>().Value;
         client.BaseAddress = new Uri(opts.BaseUrl.TrimEnd('/') + "/");
+        if (!string.IsNullOrWhiteSpace(opts.OverrideHostHeader))
+        {
+            client.DefaultRequestHeaders.Host = opts.OverrideHostHeader;
+        }
     }
 
     private static SocketsHttpHandler CreateTlsHandler()

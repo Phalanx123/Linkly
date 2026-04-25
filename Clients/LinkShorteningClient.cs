@@ -5,6 +5,7 @@ using Linkly.Abstractions;
 using Linkly.Configuration;
 using Linkly.Exceptions;
 using Linkly.Models.Links;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Linkly.Clients;
@@ -18,15 +19,18 @@ internal sealed class LinkShorteningClient : ILinkShorteningClient
 
     private readonly HttpClient _httpClient;
     private readonly IOptions<LinklyOptions> _options;
+    private readonly ILogger<LinkShorteningClient> _logger;
 
-    public LinkShorteningClient(HttpClient httpClient, IOptions<LinklyOptions> options)
+    public LinkShorteningClient(HttpClient httpClient, IOptions<LinklyOptions> options, ILogger<LinkShorteningClient> logger)
     {
         _httpClient = httpClient;
         _options = options;
+        _logger = logger;
     }
 
     public async Task<CreateLinkResponse> CreateLinkAsync(CreateLinkRequest request, CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("BaseUrl {Url}",  _options.Value.BaseUrl);
         var opts = _options.Value;
 
         var body = new LinkRequestBody
@@ -47,7 +51,7 @@ internal sealed class LinkShorteningClient : ILinkShorteningClient
             OgImage = request.OgImage,
         };
 
-        var response = await _httpClient.PostAsJsonAsync("link", body, SerializerOptions, cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("api/v1/link", body, SerializerOptions, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -60,50 +64,5 @@ internal sealed class LinkShorteningClient : ILinkShorteningClient
         var linkResponse = await response.Content.ReadFromJsonAsync<CreateLinkResponse>(cancellationToken: cancellationToken)
                ?? throw new LinklyApiException("Received empty response from Linkly API.", response.StatusCode);
         return linkResponse;
-    }
-
-    private sealed class LinkRequestBody
-    {
-        [JsonPropertyName("api_key")]
-        public required string ApiKey { get; init; }
-
-        [JsonPropertyName("workspace_id")]
-        public required int WorkspaceId { get; init; }
-
-        [JsonPropertyName("url")]
-        public required string Url { get; init; }
-
-        [JsonPropertyName("name")]
-        public string? Name { get; init; }
-
-        [JsonPropertyName("domain")]
-        public string? Domain { get; init; }
-
-        [JsonPropertyName("slug")]
-        public string? Slug { get; init; }
-
-        [JsonPropertyName("utm_source")]
-        public string? UtmSource { get; init; }
-
-        [JsonPropertyName("utm_medium")]
-        public string? UtmMedium { get; init; }
-
-        [JsonPropertyName("utm_campaign")]
-        public string? UtmCampaign { get; init; }
-
-        [JsonPropertyName("utm_term")]
-        public string? UtmTerm { get; init; }
-
-        [JsonPropertyName("utm_content")]
-        public string? UtmContent { get; init; }
-
-        [JsonPropertyName("og_title")]
-        public string? OgTitle { get; init; }
-
-        [JsonPropertyName("og_description")]
-        public string? OgDescription { get; init; }
-
-        [JsonPropertyName("og_image")]
-        public string? OgImage { get; init; }
     }
 }
