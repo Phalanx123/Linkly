@@ -1,3 +1,5 @@
+using System.Net.Security;
+using System.Security.Authentication;
 using Linkly.Abstractions;
 using Linkly.Clients;
 using Linkly.Configuration;
@@ -31,18 +33,29 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection RegisterHttpClients(this IServiceCollection services)
     {
-        services.AddHttpClient<ILinkShorteningClient, LinkShorteningClient>((sp, client) =>
-        {
-            var opts = sp.GetRequiredService<IOptions<LinklyOptions>>().Value;
-            client.BaseAddress = new Uri(opts.BaseUrl.TrimEnd('/') + "/");
-        });
+        services.AddHttpClient<ILinkShorteningClient, LinkShorteningClient>(ConfigureClient)
+            .ConfigurePrimaryHttpMessageHandler(CreateTlsHandler);
 
-        services.AddHttpClient<IQrCodeClient, QrCodeClient>((sp, client) =>
-        {
-            var opts = sp.GetRequiredService<IOptions<LinklyOptions>>().Value;
-            client.BaseAddress = new Uri(opts.BaseUrl.TrimEnd('/') + "/");
-        });
+        services.AddHttpClient<IQrCodeClient, QrCodeClient>(ConfigureClient)
+            .ConfigurePrimaryHttpMessageHandler(CreateTlsHandler);
 
         return services;
+    }
+
+    private static void ConfigureClient(IServiceProvider sp, HttpClient client)
+    {
+        var opts = sp.GetRequiredService<IOptions<LinklyOptions>>().Value;
+        client.BaseAddress = new Uri(opts.BaseUrl.TrimEnd('/') + "/");
+    }
+
+    private static SocketsHttpHandler CreateTlsHandler()
+    {
+        return new SocketsHttpHandler
+        {
+            SslOptions = new SslClientAuthenticationOptions
+            {
+                EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
+            }
+        };
     }
 }
