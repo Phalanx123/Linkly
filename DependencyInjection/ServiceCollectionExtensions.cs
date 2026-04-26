@@ -39,6 +39,9 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<IQrCodeClient, QrCodeClient>(ConfigureClient)
             .ConfigurePrimaryHttpMessageHandler(CreateTlsHandler);
 
+        services.AddHttpClient<IDomainsClient, DomainsClient>(ConfigureClient)
+            .ConfigurePrimaryHttpMessageHandler(CreateTlsHandler);
+
         return services;
     }
 
