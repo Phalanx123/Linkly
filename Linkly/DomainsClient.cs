@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using Linkly.Models;
 
 namespace Linkly;
@@ -31,7 +32,13 @@ public class DomainsClient
 
         response.EnsureSuccessStatusCode();
 
-        var domains = await response.Content.ReadFromJsonAsync<List<Domain>>(cancellationToken);
-        return domains ?? [];
+        var result = await response.Content.ReadFromJsonAsync<DomainsResponse>(cancellationToken);
+        return result?.Domains ?? [];
+    }
+
+    private sealed class DomainsResponse
+    {
+        [JsonPropertyName("domains")]
+        public List<Domain> Domains { get; set; } = [];
     }
 }
