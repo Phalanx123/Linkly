@@ -2,8 +2,8 @@ namespace Linkly.Models.QrCodes;
 
 public class QrCodeRequest
 {
-    /// <summary>The ID of the link to generate a QR code for. Required.</summary>
-    public required int LinkId { get; set; }
+    /// <summary>The URL of the link. Required.</summary>
+    public required string Url { get; set; }
 
     /// <summary>Image size in pixels (100–2048).</summary>
     public int? Size { get; set; }

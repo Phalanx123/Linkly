@@ -37,11 +37,7 @@ internal sealed class QrCodeClient : IQrCodeClient
 
     private static string BuildUrl(QrCodeRequest request, LinklyOptions opts)
     {
-        var query = new List<string>
-        {
-            $"api_key={Uri.EscapeDataString(opts.ApiKey)}",
-            $"workspace_id={opts.WorkspaceId}"
-        };
+        var query = new List<string>();
 
         if (request.Size is not null)
             query.Add($"size={request.Size}");
@@ -83,7 +79,7 @@ internal sealed class QrCodeClient : IQrCodeClient
         if (request.QuietZone is not null)
             query.Add($"quietZone={request.QuietZone}");
 
-        return $"link/{request.LinkId}/qr/png?{string.Join("&", query)}";
+        return $"{request.Url}.qr.png?{string.Join("&", query)}";
     }
 
     // The API expects hex colours URL-encoded with %23 instead of #.
