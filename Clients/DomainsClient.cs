@@ -33,7 +33,7 @@ internal sealed class DomainsClient : IDomainsClient
                 $"Linkly API error {(int)response.StatusCode}: {error}",
                 response.StatusCode);
         }
-
+        
         var result = await response.Content.ReadFromJsonAsync<DomainsResponse>(cancellationToken: cancellationToken);
         return result?.Domains ?? [];
     }
